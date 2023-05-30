@@ -4,16 +4,28 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.16"
     }
+
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 3.0.1"
+    }
+
+    ansible = {
+      version = "~> 1.1.0"
+      source  = "ansible/ansible"
+    }
   }
 
   required_version = ">= 1.2.0"
 }
 
 provider "aws" {
-  region  = "us-east-1"
+  region = "us-east-1"
   access_key = var.aws_access_key
   secret_key = var.aws_serect_key
 }
+
+provider "docker" {}
 
 ##### VPC #####
 # 2 Public Subnet
@@ -208,13 +220,40 @@ resource "aws_db_instance" "lab_db" {
   allocated_storage = 10
   storage_type = "gp2"
   engine = "mysql"
-  engine_version = "8.0.23"
+  engine_version = "8.0.29"
   instance_class = "db.t3.micro"
   db_name = "dep304_asm2"
   username = "main"
   password = "Mypassword"
-  
+
   db_subnet_group_name = aws_db_subnet_group.db_subnet_group.id
   vpc_security_group_ids = [ aws_security_group.db_sg.id ]
   skip_final_snapshot = true
+}
+
+##### Deploy MySQL container using Docker #####
+resource "docker_image" "mysql_image" {
+  name = "mysql:8.0.29"
+}
+
+resource "docker_container" "mysql_cont" {
+  image = docker_image.mysql_image.image_id
+  name  = "dep304x_asm2"
+  ports {
+    internal = 3306
+    external = 3306
+  }
+  env = [
+    "MYSQL_ROOT_PASSWORD=Mypassword",
+    "MYSQL_USER=main",
+    "MYSQL_PASSWORD=Mypassword",
+    "MYSQL_DATABASE=dep304_asm2"
+  ]
+}
+
+# Deploy another container for host Ansible
+resource "ansible_playbook" "playbook" {
+  playbook   = "../ansible/main.yml"
+  name       = "localhost"
+  replayable = true
 }
