@@ -1,0 +1,25 @@
+# Testing in Docker environment
+# Step:
+# 1. Install Ansible in container
+# 2. Import data into database
+# 3. Run queries
+- name: Import data
+  hosts: localhost
+  connection: local 
+  vars:
+    cont_name: dep304x_asm2_mysql
+  tasks:
+
+    - name: Install ansible
+      community.docker.docker_container_exec:
+        container: "{{ cont_name }}"
+        user: root
+        command: /bin/bash -c "chmod 655 /usr/local/share/script/install-ansible-mysql.sh && ./usr/local/share/script/install-ansible-mysql.sh"
+
+    - name: Import data
+      community.docker.docker_container_exec:
+        container: "{{ cont_name }}"
+        user: root
+        command: /bin/bash -c "ansible-playbook /usr/local/share/ansible/docker-import-data.yaml"
+
+    

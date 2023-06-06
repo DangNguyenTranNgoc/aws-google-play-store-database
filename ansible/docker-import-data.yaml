@@ -1,0 +1,75 @@
+- name: test
+  hosts: localhost
+  connection: local 
+  tasks:
+    - name: Enable load file
+      community.mysql.mysql_query:
+        login_host: localhost
+        login_user: root
+        login_password: Mypassword
+        login_port: 3306
+        query: SET GLOBAL local_infile=1;
+    
+    - name: Drop app table if exist
+      community.mysql.mysql_query:
+        login_host: localhost
+        login_port: 3306
+        login_db: dep304_asm2
+        config_file: /usr/local/share/ansible/.my.cnf
+        query: DROP TABLE IF EXISTS `app`;
+
+    - name: Create app table
+      community.mysql.mysql_query:
+        login_host: localhost
+        login_port: 3306
+        login_db: dep304_asm2
+        config_file: /usr/local/share/ansible/.my.cnf
+        query: |
+          create table `app`
+          (
+              App              TEXT   null,
+              Category         TEXT   null,
+              Rating           DOUBLE null,
+              Reviews          TEXT   null,
+              Size             TEXT   null,
+              Installs         TEXT   null,
+              Type             TEXT   null,
+              Price            TEXT   null,
+              `Content Rating` TEXT   null,
+              Genres           TEXT   null,
+              `Last Updated`   TEXT   null,
+              `Current Ver`    TEXT   null,
+              `Android Ver`    TEXT   null
+          );
+
+    - name: Import app data
+      shell: |
+        mysql --local-infile=1 -h localhost -D dep304_asm2 < /usr/local/share/script/docker-import-app.sql
+    
+    - name: Drop review table if exist
+      community.mysql.mysql_query:
+        login_host: localhost
+        login_port: 3306
+        login_db: dep304_asm2
+        config_file: /usr/local/share/ansible/.my.cnf
+        query: DROP TABLE IF EXISTS `review`;
+
+    - name: Create review table
+      community.mysql.mysql_query:
+        login_host: localhost
+        login_port: 3306
+        login_db: dep304_asm2
+        config_file: /usr/local/share/ansible/.my.cnf
+        query: |
+          create table review
+          (
+              App                    TEXT   null,
+              Translated_Review      TEXT   null,
+              Sentiment              TEXT   null,
+              Sentiment_Polarity     DOUBLE null,
+              Sentiment_Subjectivity DOUBLE null
+          );
+    
+    - name: Import app data
+      shell: |
+        mysql --local-infile=1 -h localhost -D dep304_asm2 < /usr/local/share/script/docker-import-review.sql

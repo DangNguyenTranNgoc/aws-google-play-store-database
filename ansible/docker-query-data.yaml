@@ -1,0 +1,45 @@
+- name: test
+  hosts: localhost
+  connection: local 
+  tasks:
+    
+    - name: Query 1
+      shell: |
+        mysql --local-infile=1 -h localhost -D dep304_asm2 -e "$(cat /usr/local/share/script/query_1.sql)"
+      register: mysql_output_1
+    
+    - name: Show result from query 1
+      ansible.builtin.debug:
+        msg: 
+          - "Time to run: {{ mysql_output_1.delta }}"
+          - "Output is: {{ mysql_output_1.stdout_lines }}"
+    
+    - name: Query 2
+      shell: |
+        mysql --local-infile=1 -h localhost -D dep304_asm2 -e "$(cat /usr/local/share/script/query_2.sql)"
+      register: mysql_output_2
+    
+    - name: Show result from query 2
+      ansible.builtin.debug:
+        msg: 
+          - "Time to run: {{ mysql_output_2.delta }}"
+          - "Output is: {{ mysql_output_2.stdout_lines }}"
+    
+    - name: Query 3
+      shell: |
+        mysql --local-infile=1 -h localhost -D dep304_asm2 -e "$(cat /usr/local/share/script/query_3.sql)"
+      register: mysql_output_3
+    
+    - name: Show result from query 3
+      ansible.builtin.debug:
+        msg: 
+          - "Time to run: {{ mysql_output_3.delta }}"
+          - "Output is: {{ mysql_output_3.stdout_lines }}"
+
+    - name: Print output to file
+      copy:
+        content:
+          - "Time to run query 1: {{ mysql_output_1.delta }}"
+          - "Time to run query 2: {{ mysql_output_2.delta }}"
+          - "Time to run query 3: {{ mysql_output_3.delta }}"
+        dest: "/usr/local/share/script/docker-exec-time.txt"

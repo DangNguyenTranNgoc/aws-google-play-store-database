@@ -36,5 +36,6 @@ terraform.rc
 # Ignore lock
 .terraform.lock.hcl
 
-.env
 secrets.tfvars
+
+.DS_Store

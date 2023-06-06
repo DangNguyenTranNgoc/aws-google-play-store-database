@@ -1,0 +1,1 @@
+["Time to run query 1: 0:00:00.294886", "Time to run query 2: 0:00:00.383407", "Time to run query 3: 0:00:01.564242"]
