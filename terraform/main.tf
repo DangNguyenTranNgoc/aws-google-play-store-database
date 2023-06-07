@@ -240,6 +240,8 @@ resource "docker_image" "mysql_image" {
 resource "docker_container" "mysql_cont" {
   image = docker_image.mysql_image.image_id
   name  = "dep304x_asm2_mysql"
+  memory = 2048
+  cpu_shares = 2
   ports {
     internal = 3306
     external = 3306
@@ -272,48 +274,9 @@ resource "docker_container" "mysql_cont" {
   }
 }
 
-# resource "docker_container" "ansible_cont" {
-#   image = docker_image.mysql_image.image_id
-#   name  = "dep304x_asm2_ansible"
-#   env = [
-#     "MYSQL_ROOT_PASSWORD=Mypassword",
-#     "MYSQL_USER=main",
-#     "MYSQL_PASSWORD=Mypassword",
-#     "MYSQL_DATABASE=dep304_asm2"
-#   ]
-#   mounts {
-#     target = "/usr/local/share/data/"
-#     type = "bind"
-#     source = "/Users/tranngocdangnguyen/Projects/aws-google-play-store-database/data/"
-#   }
-#   mounts {
-#     target = "/usr/local/share/script/"
-#     type = "bind"
-#     source = "/Users/tranngocdangnguyen/Projects/aws-google-play-store-database/script/"
-#   }
-# }
-
-# Deploy another container for host Ansible
-# resource "ansible_playbook" "playbook" {
-#   depends_on = [ docker_container.ansible_cont ]
-#   playbook   = "/Users/tranngocdangnguyen/Projects/aws-google-play-store-database/ansible/install-ansible.yaml"
-#   name       = "localhost"
-#   replayable = true
-# }
-
 resource "null_resource" "run_ansible_playbook" {
   depends_on = [ docker_container.mysql_cont ]
   provisioner "local-exec" {
     command = "ansible-playbook /Users/tranngocdangnguyen/Projects/aws-google-play-store-database/ansible/docker-test.yaml"
   }
 }
-
-# resource "ansible_playbook" "test" {
-#   depends_on = [ 
-#     docker_container.ansible_cont,
-#     null_resource.run_ansible_playbook
-#   ]
-#   playbook = "/Users/tranngocdangnguyen/Projects/aws-google-play-store-database/ansible/test.yaml"
-#   name = "dep304x_asm2_ansible"
-#   replayable = true
-# }

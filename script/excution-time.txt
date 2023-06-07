@@ -1,0 +1,9 @@
+=== Execution in AWS RDS ===
+Query 1 took: 1 s 890 ms
+Query 2 took: 2 s 339 ms
+Query 3 took: 4 s 713 ms
+
+=== Execution in Local (Docker) ===
+Query 1 took: 0 s 295 ms
+Query 2 took: 0 s 383 ms
+Query 3 took: 1 s 564 ms
