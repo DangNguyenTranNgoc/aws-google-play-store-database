@@ -1,0 +1,88 @@
+- name: test
+  hosts: localhost
+  connection: local
+  vars:
+    db_host: localhost
+    work_dir: lookup('ansible.builtin.env', 'HOME', default='/home/')
+  tasks:
+    - name: Enable load file
+      community.mysql.mysql_query:
+        login_host: "{{ db_host }}"
+        config_file: "{{ work_dir }}/ansible/.my.cnf"
+        login_port: 3306
+        query: SET GLOBAL local_infile=1;
+
+    - name: Create app table
+      community.mysql.mysql_query:
+        login_host: "{{ db_host }}"
+        login_port: 3306
+        login_db: dep304_asm2
+        config_file: "{{ work_dir }}/ansible/.my.cnf"
+        query: 
+          - DROP TABLE IF EXISTS `app`;
+          - |
+            create table `app`
+            (
+                App              TEXT   null,
+                Category         TEXT   null,
+                Rating           DOUBLE null,
+                Reviews          TEXT   null,
+                Size             TEXT   null,
+                Installs         TEXT   null,
+                Type             TEXT   null,
+                Price            TEXT   null,
+                `Content Rating` TEXT   null,
+                Genres           TEXT   null,
+                `Last Updated`   TEXT   null,
+                `Current Ver`    TEXT   null,
+                `Android Ver`    TEXT   null
+            );
+
+    - name: Import app data
+      shell: |
+        mysql --defaults-extra-file="{{ work_dir }}/ansible/.my.cnf" \
+              -h "{{ db_host }}" \
+              --local-infile=1 \
+              -D dep304_asm2 \
+              -e "load data local infile '{{ work_dir }}/data/app.csv' \
+                  into table app \
+                  FIELDS TERMINATED BY ',' \
+                  ENCLOSED BY '\"' \
+                  LINES TERMINATED BY '\n' \
+                  IGNORE 1 LINES \
+                  (App, Category, Rating, Reviews, Size, Installs, \
+                  Type, Price, \`Content Rating\`, Genres, \
+                  \`Last Updated\`, \`Current Ver\`, \`Android Ver\`);"
+
+    - name: Create review table
+      community.mysql.mysql_query:
+        login_host: "{{ db_host }}"
+        login_port: 3306
+        login_db: dep304_asm2
+        config_file: "{{ work_dir }}/ansible/.my.cnf"
+        query:
+          - DROP TABLE IF EXISTS `review`; 
+          - |
+            create table review
+            (
+                App                    TEXT   null,
+                Translated_Review      TEXT   null,
+                Sentiment              TEXT   null,
+                Sentiment_Polarity     DOUBLE null,
+                Sentiment_Subjectivity DOUBLE null
+            );
+    
+    - name: Import review data
+      shell: |
+        mysql --defaults-extra-file="{{ work_dir }}/ansible/.my.cnf" \
+              -h "{{ db_host }}" \
+              --local-infile=1 \
+              -D dep304_asm2 \
+              -e "load data local infile '{{ work_dir }}/data/review.csv' \
+                  into table review \
+                  FIELDS TERMINATED BY ',' \
+                  ENCLOSED BY '\"' \
+                  LINES TERMINATED BY '\n' \
+                  IGNORE 1 LINES \
+                  (App, Translated_Review, Sentiment, \
+                  Sentiment_Polarity, Sentiment_Subjectivity);"
