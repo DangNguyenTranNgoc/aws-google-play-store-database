@@ -1,0 +1,7 @@
+localhost-py3 ansible_host=localhost ansible_connection=local ansible_python_interpreter=python3
+
+[application]
+localhost
+
+[application:vars]
+ansible_python_interpreter=python3

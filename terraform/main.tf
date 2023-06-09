@@ -27,6 +27,13 @@ provider "aws" {
 
 provider "docker" {}
 
+locals {
+  module_path        = abspath(path.module)
+  codebase_root_path = abspath("${path.module}/..")
+  # Trim local.codebase_root_path and one additional slash from local.module_path
+  module_rel_path    = substr(local.module_path, length(local.codebase_root_path)+1, length(local.module_path))
+}
+
 ##### VPC #####
 # 2 Public Subnet
 # 2 Private Subnet
@@ -255,28 +262,28 @@ resource "docker_container" "mysql_cont" {
   mounts {
     target = "/usr/local/share/data/"
     type = "bind"
-    source = "/Users/tranngocdangnguyen/Projects/aws-google-play-store-database/data/"
+    source = "${local.codebase_root_path}/data/"
   }
   mounts {
     target = "/usr/local/share/script/"
     type = "bind"
-    source = "/Users/tranngocdangnguyen/Projects/aws-google-play-store-database/script/"
+    source = "${local.codebase_root_path}/script/"
   }
   mounts {
     target = "/usr/local/share/ansible/"
     type = "bind"
-    source = "/Users/tranngocdangnguyen/Projects/aws-google-play-store-database/ansible/"
+    source = "${local.codebase_root_path}/ansible/"
   }
   mounts {
     target = "/etc/my.cnf"
     type = "bind"
-    source = "/Users/tranngocdangnguyen/Projects/aws-google-play-store-database/my.cnf"
+    source = "${local.codebase_root_path}/my.cnf"
   }
 }
 
 resource "null_resource" "run_ansible_playbook" {
   depends_on = [ docker_container.mysql_cont ]
   provisioner "local-exec" {
-    command = "ansible-playbook /Users/tranngocdangnguyen/Projects/aws-google-play-store-database/ansible/docker-test.yaml"
+    command = "ansible-playbook -i ${local.codebase_root_path}/ansible/inventory ${local.codebase_root_path}/ansible/docker-test.yaml"
   }
 }

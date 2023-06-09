@@ -14,19 +14,27 @@
       community.docker.docker_container_exec:
         container: "{{ cont_name }}"
         user: root
-        command: /bin/bash -c "chmod 655 {{ work_dir }}/script/install-ansible-mysql.sh && .{{ work_dir }}/script/install-ansible-mysql.sh"
+        command: |
+          /bin/bash -c "chmod 655 {{ work_dir }}/script/install-ansible-mysql.sh && \
+                        .{{ work_dir }}/script/install-ansible-mysql.sh"
 
     - name: Import data
       community.docker.docker_container_exec:
         container: "{{ cont_name }}"
         user: root
-        command: /bin/bash -c "ansible-playbook -e \"work_dir={{ work_dir }}\" {{ work_dir }}/ansible/import-data.yaml"
+        command: |
+          /bin/bash -c "ansible-playbook \
+                        -e \"work_dir={{ work_dir }}\" \
+                        {{ work_dir }}/ansible/import-data.yaml"
     
     - name: Query data
       community.docker.docker_container_exec:
         container: "{{ cont_name }}"
         user: root
-        #command: /bin/bash -c "ansible-playbook -e "{\"work_dir\":\"{{ work_dir }}\",\"time_log_file\":\"{{ work_dir }}/docker-exec-time.txt\"}\" {{ work_dir }}/ansible/query-data.yaml"
-        command: /bin/bash -c "ansible-playbook -e \"work_dir='{{ work_dir }}'\" -e "time_log_file='{{ work_dir }}/data/docker-exec-time.txt'" {{ work_dir }}/ansible/query-data.yaml"
+        command: |
+          /bin/bash -c "ansible-playbook \
+                        -e \"work_dir='{{ work_dir }}'\" \
+                        -e \"time_log_file='{{ work_dir }}/data/docker-exec-time.txt'\" \
+                        {{ work_dir }}/ansible/query-data.yaml"
 
     

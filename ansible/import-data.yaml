@@ -7,6 +7,7 @@
   tasks:
     - name: Enable load file
       community.mysql.mysql_query:
+        login_user: root
         login_host: "{{ db_host }}"
         config_file: "{{ work_dir }}/ansible/.my.cnf"
         login_port: 3306
