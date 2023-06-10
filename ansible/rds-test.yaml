@@ -1,0 +1,29 @@
+# Testing in Amazon RDS environment
+# Step:
+# 1. Import data into database
+# 2. Run queries
+- name: Import data
+  hosts: localhost
+  connection: local 
+  vars:
+    work_dir: /home/ec2-user/
+    mysql_host: ""
+  tasks:
+
+    - name: Import data
+      shell:
+        cmd: |
+          /bin/bash -c "ansible-playbook \
+                        -e \"mysql_host={{ mysql_host }}\" \
+                        -e \"work_dir={{ work_dir }}\" \
+                        {{ work_dir }}/ansible/import-data.yaml"
+    
+    - name: Query data
+      shell:
+        cmd: |
+          /bin/bash -c "ansible-playbook \
+                        -e \"mysql_host={{ mysql_host }}\" \
+                        -e \"work_dir='{{ work_dir }}'\" \
+                        -e \"time_log_file='{{ work_dir }}/data/rds-exec-time.txt'\" \
+                        {{ work_dir }}/ansible/query-data.yaml"
+

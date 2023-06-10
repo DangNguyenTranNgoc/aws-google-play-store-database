@@ -2,20 +2,21 @@
   hosts: localhost
   connection: local
   vars:
-    db_host: localhost
+    mysql_host: localhost
     work_dir: lookup('ansible.builtin.env', 'HOME', default='/home/')
   tasks:
     - name: Enable load file
       community.mysql.mysql_query:
         login_user: root
-        login_host: "{{ db_host }}"
+        login_host: localhost
         config_file: "{{ work_dir }}/ansible/.my.cnf"
         login_port: 3306
         query: SET GLOBAL local_infile=1;
+      when: mysql_host == "localhost"
 
     - name: Create app table
       community.mysql.mysql_query:
-        login_host: "{{ db_host }}"
+        login_host: "{{ mysql_host }}"
         login_port: 3306
         login_db: dep304_asm2
         config_file: "{{ work_dir }}/ansible/.my.cnf"
@@ -42,7 +43,7 @@
     - name: Import app data
       shell: |
         mysql --defaults-extra-file="{{ work_dir }}/ansible/.my.cnf" \
-              -h "{{ db_host }}" \
+              -h "{{ mysql_host }}" \
               --local-infile=1 \
               -D dep304_asm2 \
               -e "load data local infile '{{ work_dir }}/data/app.csv' \
@@ -57,7 +58,7 @@
 
     - name: Create review table
       community.mysql.mysql_query:
-        login_host: "{{ db_host }}"
+        login_host: "{{ mysql_host }}"
         login_port: 3306
         login_db: dep304_asm2
         config_file: "{{ work_dir }}/ansible/.my.cnf"
@@ -76,7 +77,7 @@
     - name: Import review data
       shell: |
         mysql --defaults-extra-file="{{ work_dir }}/ansible/.my.cnf" \
-              -h "{{ db_host }}" \
+              -h "{{ mysql_host }}" \
               --local-infile=1 \
               -D dep304_asm2 \
               -e "load data local infile '{{ work_dir }}/data/review.csv' \

@@ -2,9 +2,9 @@
   hosts: localhost
   connection: local
   vars:
-    - mysql_host: localhost
-    - work_dir: lookup('ansible.builtin.env', 'HOME', default='/home/')
-    - time_log_file: "exec-time.txt"
+    mysql_host: localhost
+    work_dir: lookup('ansible.builtin.env', 'HOME', default='/home/')
+    time_log_file: "exec-time.txt"
   tasks:
     
     - name: Query 1

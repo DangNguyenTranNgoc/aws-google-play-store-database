@@ -36,6 +36,8 @@ terraform.rc
 # Ignore lock
 .terraform.lock.hcl
 
+# Ignore sensitive files
 secrets.tfvars
+*.pem
 
 .DS_Store

@@ -36,5 +36,3 @@
                         -e \"work_dir='{{ work_dir }}'\" \
                         -e \"time_log_file='{{ work_dir }}/data/docker-exec-time.txt'\" \
                         {{ work_dir }}/ansible/query-data.yaml"
-
-    
